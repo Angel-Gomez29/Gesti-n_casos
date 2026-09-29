@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><title>Tablero de casos – UCentral Virtual</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fffdf9;--ink:#1d2a2f;--mut:#6b767a;--line:#e3ddd2;--a:#0f5f6b;--b:#d9822b;--r:#b8402f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12191b;--card:#1a2427;--ink:#e9efef;--mut:#93a1a5;--line:#2b383b;--a:#4fb5c4;--b:#e8a25a;--r:#e0705f}}
+:root[data-theme=dark]{--bg:#12191b;--card:#1a2427;--ink:#e9efef;--mut:#93a1a5;--line:#2b383b;--a:#4fb5c4;--b:#e8a25a;--r:#e0705f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Georgia,'Times New Roman',serif}
+main{max-width:1100px;margin:auto;padding:24px 16px 48px}
+h1{font-size:28px;margin:0 0 4px;letter-spacing:-.01em}h2{font-size:16px;margin:0 0 12px;font-weight:600}
+.sub{color:var(--mut);margin:0 0 20px;font-family:system-ui,sans-serif;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.k{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.k b{display:block;font-size:30px;line-height:1.1}.k span{font:12px system-ui,sans-serif;color:var(--mut)}
+.up{display:inline-block;background:var(--a);color:#fff;font:600 13px system-ui,sans-serif;padding:9px 14px;border-radius:6px;cursor:pointer;margin:0 10px 20px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.wide{grid-column:1/-1}
+.row{display:grid;grid-template-columns:minmax(90px,42%) 1fr 40px;gap:8px;align-items:center;margin:6px 0;font:13px system-ui,sans-serif}
+.row .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row .t{background:var(--line);border-radius:3px;height:10px}.row .t i{display:block;height:100%;border-radius:3px;background:var(--a)}.row .v{text-align:right;font-variant-numeric:tabular-nums}
+svg{width:100%;height:auto;display:block}.lg{font:12px system-ui,sans-serif;color:var(--mut);margin-top:6px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px}
+</style></head><body><main>
+<h1>Tablero de casos de soporte</h1>
+<label class="up">Actualizar con archivo Excel<input type="file" id="f" accept=".xlsx,.xlsm,.xls" hidden></label><span class="sub" id="st">Datos del archivo del 29/09/2026 · tiempos en días · el Excel debe tener las hojas «En Gestion» y «Cerrados»</span>
+<div class="kpis" id="kpis"></div>
+<div class="grid" id="g"></div>
+</main>
+<script>
+let D={"abiertos": 379, "cerrados": 4945, "mediana_cierre": 9.9, "prom_edad": 14.4, "mas30": 43, "criticos": 248, "estado": [["Pendiente por el estudiante", 115], ["Abierto", 110], ["En proceso", 92], ["Caso en verificación", 62]], "prio": [["Critico", 248], ["Bajo", 50], ["Medio", 48], ["Alto", 30], ["Sin dato", 3]], "tipo": [["SOLICITUD", 311], ["INCIDENTE", 63], ["CONSULTA", 5]], "persona": [["Estudiante", 315], ["Profesor", 34], ["Aspirante", 30]], "dep": [["DAFE", 67], ["ANALISTA PROCESOS ACADÉMICOS 2 - NICOLE CARO", 42], ["ANALISTA SERVICIOS 2 - LILIANA URBANO", 40], ["ANALISTA SERVICIOS 1 - BRAYAN RODRIGUEZ", 28], ["ADMISIONES Y PROMOCION UCENTRAL VIRTUAL - PREGRADO", 24], ["LOGISTICA ACADÉMICA (SCALA)", 21], ["ANALISTA PROCESOS ACADÉMICOS 3 - JULIAN PEÑA", 20]], "gestor": [["Carol Alexandra García Martínez", 35], ["Angela Patricia Guzman Cuberos", 34], ["Laura Camila Vivas Rodtiguez", 33], ["Juan Felipe Valderrama Tilaguy", 30], ["Brayan Daniel Cala Herrera", 30], ["Nathalia Rodríguez Díaz", 29], ["Yiseth Katerine Ardila", 28]], "serv": [["Certificados académicos", 47], ["Credenciales Institucionales", 33], ["Extracreditaje", 31], ["Soporte Credyty", 19], ["Revisión de calificaciones", 18], ["Recibo o pago de matrícula", 18], ["Registro de asignaturas", 15]], "aging": [["0-3 días", 79], ["4-7 días", 106], ["8-15 días", 116], ["16-30 días", 35], ["+30 días", 43]], "cprio": [["IMPORTANTE", 4180], ["ALTO", 717], ["NORMAL", 48]], "ctipo": [["SOLICITUD", 3756], ["INCIDENTE", 1120], ["CONSULTA", 69]], "cserv": [["Credenciales Institucionales", 434], ["Apoyo Asuntos Academicos", 300], ["Recibo o pago de matrícula", 256], ["Solicitud de certificados y contenidos programaticos", 243], ["Solicitud de certificados y contenidos programáticos", 209], ["Registro de asignaturas", 202], ["Apoyo Asuntos Académicos", 174]], "meses": ["2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"], "creados": [9, 21, 68, 69, 206, 90, 199, 240, 159, 164, 414, 278, 478, 368, 452, 342, 757, 455, 555], "cerr": [0, 17, 53, 53, 180, 98, 105, 215, 225, 187, 142, 274, 253, 405, 590, 471, 575, 572, 528]};
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString('es-CO');
+function render(){$('kpis').innerHTML='';$('g').innerHTML='';
+[[D.abiertos,'Casos en gestión',''],[D.cerrados,'Casos cerrados',''],[D.mediana_cierre,'Mediana de cierre (días)',''],[D.prom_edad,'Antigüedad media abiertos (días)',''],[D.mas30,'Abiertos con más de 30 días','var(--r)'],[D.criticos,'Abiertos en prioridad crítica','var(--b)']]
+.forEach(([v,l,c])=>$('kpis').insertAdjacentHTML('beforeend',`<div class="k"><b style="color:${c}">${fmt(v)}</b><span>${l}</span></div>`));
+function bars(t,data,col,wide){const m=Math.max(...data.map(d=>d[1]));
+ $('g').insertAdjacentHTML('beforeend',`<div class="card${wide?' wide':''}"><h2>${t}</h2>`+data.map(([n,v])=>`<div class="row"><span class="n" title="${n}">${n}</span><span class="t"><i style="width:${v/m*100}%;${col?'background:'+col:''}"></i></span><span class="v">${fmt(v)}</span></div>`).join('')+'</div>');}
+// tendencia
+(function(){const W=1000,H=260,p=40,m=D.meses.length,mx=Math.max(...D.creados,...D.cerr);
+ const X=i=>p+i*(W-2*p)/(m-1),Y=v=>H-p-v/mx*(H-2*p);
+ const line=(a,c)=>`<polyline fill="none" stroke="${c}" stroke-width="2.5" points="${a.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`;
+ const lab=D.meses.map((s,i)=>i%2==0?`<text x="${X(i)}" y="${H-14}" font-size="12" text-anchor="middle" fill="var(--mut)">${s.slice(2)}</text>`:'').join('');
+ const grid=[0,.5,1].map(f=>`<line x1="${p}" x2="${W-p}" y1="${Y(mx*f)}" y2="${Y(mx*f)}" stroke="var(--line)"/><text x="${p-6}" y="${Y(mx*f)+4}" font-size="12" text-anchor="end" fill="var(--mut)">${Math.round(mx*f)}</text>`).join('');
+ $('g').insertAdjacentHTML('beforeend',`<div class="card wide"><h2>Casos creados vs. cerrados por mes</h2><svg viewBox="0 0 ${W} ${H}">${grid}${line(D.creados,'var(--a)')}${line(D.cerr,'var(--b)')}${lab}</svg><div class="lg"><i style="background:var(--a)"></i>Creados<i style="background:var(--b)"></i>Cerrados</div></div>`);})();
+bars('Casos en gestión por estado',D.estado);
+bars('Antigüedad de casos abiertos',D.aging,'var(--b)');
+bars('Abiertos por prioridad',D.prio,'var(--r)');
+bars('Abiertos por tipo de caso',D.tipo);
+bars('Abiertos por tipo de persona',D.persona);
+bars('Abiertos por dependencia',D.dep);
+bars('Abiertos por gestor responsable',D.gestor);
+bars('Servicios con más casos abiertos',D.serv,'var(--b)');
+bars('Cerrados por servicio',D.cserv);
+bars('Cerrados por prioridad',D.cprio);
+}
+render();
+const clean=s=>String(s??'').trim().replace(/\s+/g,' ');
+const vcount=(a,n=8)=>{const m={};a.forEach(x=>{const k=clean(x)||'Sin dato';m[k]=(m[k]||0)+1});return Object.entries(m).sort((x,y)=>y[1]-x[1]).slice(0,n)};
+const nums=a=>a.map(x=>parseFloat(x)).filter(isFinite);
+const med=a=>{a=nums(a).sort((x,y)=>x-y);const h=a.length>>1;return a.length?(a.length%2?a[h]:(a[h-1]+a[h])/2):0};
+const rows=(wb,n)=>{const ws=wb.Sheets[n];if(!ws)throw new Error('falta la hoja "'+n+'"');return XLSX.utils.sheet_to_json(ws,{defval:null}).map(r=>{const o={};for(const k in r)o[k.trim()]=r[k];return o}).filter(r=>r['Ticket externo'])};
+const mk=d=>d instanceof Date&&!isNaN(d)?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'):null;
+function compute(wb){
+ const g=rows(wb,'En Gestion'),c=rows(wb,'Cerrados'),age=nums(g.map(r=>r['Tiempo de Gestión']));
+ const col=(a,k)=>a.map(r=>r[k]);
+ const cnt=(a,f)=>a.reduce((s,x)=>s+(f(x)?1:0),0);
+ const B=[['0-3 días',3],['4-7 días',7],['8-15 días',15],['16-30 días',30],['+30 días',1e9]];let lo=-1;
+ const aging=B.map(([l,h])=>{const v=cnt(age,x=>x>lo&&x<=h);lo=h;return [l,v]});
+ const cr={},cl={},add=(o,d)=>{const k=mk(d);if(k)o[k]=(o[k]||0)+1};
+ g.forEach(r=>add(cr,r['Fecha creación']));c.forEach(r=>{add(cr,r['Fecha generación']);add(cl,r['Fecha respuesta'])});
+ const meses=[...new Set([...Object.keys(cr),...Object.keys(cl)])].sort();
+ const crit=s=>clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()==='critico';
+ return {abiertos:g.length,cerrados:c.length,mediana_cierre:+med(col(c,'Tiempo de Gestion')).toFixed(1),prom_edad:+(age.reduce((a,b)=>a+b,0)/(age.length||1)).toFixed(1),
+  mas30:cnt(age,x=>x>30),criticos:cnt(col(g,'Prioridad'),crit),
+  estado:vcount(col(g,'Estado')),prio:vcount(col(g,'Prioridad')),tipo:vcount(col(g,'Tipo')),persona:vcount(col(g,'Tipo persona')),
+  dep:vcount(col(g,'Dependencia'),7),gestor:vcount(col(g,'Gestor responsable'),7),serv:vcount(col(g,'Nombre del servicio'),7),aging,
+  cprio:vcount(col(c,'Prioridad')),ctipo:vcount(col(c,'Tipo')),cserv:vcount(col(c,'Nombre del servicio'),7),
+  meses,creados:meses.map(m=>cr[m]||0),cerr:meses.map(m=>cl[m]||0)};}
+$('f').onchange=e=>{const f=e.target.files[0];if(!f)return;$('st').textContent='Leyendo '+f.name+'…';const fr=new FileReader();
+ fr.onload=ev=>{try{const wb=XLSX.read(ev.target.result,{type:'array',cellDates:true,sheets:['En Gestion','Cerrados']});D=compute(wb);render();$('st').textContent='Datos de '+f.name+' · cargado el '+new Date().toLocaleString('es-CO')+' · tiempos en días'}catch(err){$('st').textContent='No se pudo leer el archivo: '+err.message}};
+ fr.readAsArrayBuffer(f)};
+</script></body></html>
